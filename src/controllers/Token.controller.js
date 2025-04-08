@@ -23,6 +23,24 @@ const generateAndSaveToken = async (req, res) => {
   }
 };
 
+// GET: Search for token by value
+const getTokenByValue = async (req, res) => {
+  try {
+    const tokenValue = req.params.tokenValue;
+    const tokenData = await Token.findOne({ token: tokenValue });
+
+    if (!tokenData) {
+      return res.status(404).json({ message: "Token not found" });
+    }
+
+    res.json({ token: tokenData.token, created_at: tokenData.created_at });
+  } catch (err) {
+    console.error("Error searching token:", err.message);
+    res.status(500).send("Server Error");
+  }
+};
+
 module.exports = {
   generateAndSaveToken,
+  getTokenByValue,
 };
