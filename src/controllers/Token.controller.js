@@ -16,6 +16,8 @@ function generateToken() {
 
 // Unified Controller Function
 const handleTokenRequest = async (req, res) => {
+  console.log("🔥 POST /api/token route hit");
+  console.log("Query:", req.query);
   const act = req.query.act;          // act=generate
   const act1 = req.query.act1;        // act1=check or token value
   const tokenQuery = req.query.token; // directly passed token
