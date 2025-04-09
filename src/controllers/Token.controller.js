@@ -15,7 +15,7 @@ const handleTokenRequest = async (req, res) => {
   const tokenQuery = req.query.token; // directly passed token
 
   try {
-    // 🔍 1. Check Token
+    // 1. Check Token
     if (act1 === 'check' || /^[A-Z0-9]{16}$/.test(act1) || /^[A-Z0-9]{16}$/.test(tokenQuery)) {
       const tokenToCheck = act1 || tokenQuery;
       console.log("Checking Token:", tokenToCheck);
@@ -37,7 +37,7 @@ const handleTokenRequest = async (req, res) => {
       });
     }
 
-    // 🔄 2. Generate New Token
+    //  2. Generate New Token
     if (act === 'generate') {
       const newTokenValue = generateToken();
       const newToken = new Token({ token: newTokenValue });
