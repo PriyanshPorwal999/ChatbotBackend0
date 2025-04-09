@@ -1,11 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { generateAndSaveToken,getTokenByValue } = require("../controllers/Token.controller.js");
+const { handleTokenRequest } = require('../controllers/token.controller');
 
-// POST /api/generate_token
-router.post("/generate_token", generateAndSaveToken);
-
-// GET /api/token/:tokenValue
-router.get("/token/:tokenValue", getTokenByValue);
+// Use the same route for both generate and validate
+router.post('/token', handleTokenRequest);
 
 module.exports = router;

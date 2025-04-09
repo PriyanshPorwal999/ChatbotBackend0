@@ -8,39 +8,60 @@ function generateToken() {
   );
 }
 
-// Controller function to generate and save token
-const generateAndSaveToken = async (req, res) => {
+// Unified Controller Function
+const handleTokenRequest = async (req, res) => {
+  const act = req.query.act;          // act=generate
+  const act1 = req.query.act1;        // act1=check or token value
+  const tokenQuery = req.query.token; // directly passed token
+
   try {
-    const token = generateToken();
+    // 🔍 1. Check Token
+    if (act1 === 'check' || /^[A-Z0-9]{16}$/.test(act1) || /^[A-Z0-9]{16}$/.test(tokenQuery)) {
+      const tokenToCheck = act1 || tokenQuery;
+      console.log("Checking Token:", tokenToCheck);
 
-    const newToken = new Token({ token });
-    await newToken.save();
+      const tokenData = await Token.findOne({ token: tokenToCheck });
 
-    res.status(201).json({ token });
-  } catch (err) {
-    console.error("Error generating token:", err.message);
-    res.status(500).send("Server Error");
-  }
-};
+      if (!tokenData) {
+        return res.status(404).json({
+          status: "not found",
+          message: "Token not found in our system. Please check the value and try again."
+        });
+      }
 
-// GET: Search for token by value
-const getTokenByValue = async (req, res) => {
-  try {
-    const tokenValue = req.params.tokenValue;
-    const tokenData = await Token.findOne({ token: tokenValue });
-
-    if (!tokenData) {
-      return res.status(404).json({ message: "Token not found" });
+      return res.json({
+        status: "valid",
+        token: tokenData.token,
+        created_at: tokenData.created_at,
+        message: "Token is valid and registered in our system."
+      });
     }
 
-    res.json({ token: tokenData.token, created_at: tokenData.created_at });
+    // 🔄 2. Generate New Token
+    if (act === 'generate') {
+      const newTokenValue = generateToken();
+      const newToken = new Token({ token: newTokenValue });
+      await newToken.save();
+
+      return res.status(201).json({
+        status: "generated",
+        token: newTokenValue,
+        message: "Token has been successfully generated and saved."
+      });
+    }
+
+    // ❌ Invalid Request
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid parameters. Use act=generate to create a token or provide a valid token to check."
+    });
+
   } catch (err) {
-    console.error("Error searching token:", err.message);
-    res.status(500).send("Server Error");
+    console.error("Token Handler Error:", err.message);
+    res.status(500).json({ status: "error", message: "Server error occurred" });
   }
 };
 
 module.exports = {
-  generateAndSaveToken,
-  getTokenByValue,
+  handleTokenRequest,
 };
